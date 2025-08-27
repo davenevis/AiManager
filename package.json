@@ -1,6 +1,6 @@
 {
   "name": "@davenevis/aimanager",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "🚀 Autonomous AI company with CEO dashboard - Web interface + CLI to deploy intelligent AI workers and build projects automatically",
   "main": "bin/aimanager.js",
   "bin": {
