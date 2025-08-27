@@ -1,7 +1,7 @@
 {
   "name": "@davenevis/aimanager",
   "version": "1.0.0",
-  "description": "🚀 Autonomous AI company management system - Deploy intelligent AI workers to build your projects automatically",
+  "description": "🚀 Autonomous AI company with CEO dashboard - Web interface + CLI to deploy intelligent AI workers and build projects automatically",
   "main": "bin/aimanager.js",
   "bin": {
     "aimanager": "./bin/aimanager.js"
@@ -9,12 +9,8 @@
   "scripts": {
     "start": "node bin/aimanager.js",
     "test": "jest",
-    "build": "webpack --mode production",
-    "build:dev": "webpack --mode development",
-    "dev": "concurrently \"webpack --mode development --watch\" \"nodemon bin/aimanager.js\"",
     "lint": "eslint src/ bin/",
-    "format": "prettier --write src/ bin/",
-    "prepare": "npm run build"
+    "format": "prettier --write src/ bin/"
   },
   "keywords": [
     "ai", 
@@ -24,13 +20,15 @@
     "claude", 
     "project-management", 
     "cli", 
-    "dashboard", 
+    "web-dashboard", 
+    "ceo-control-panel",
+    "real-time-monitoring",
     "coordination", 
     "multi-agent", 
     "workers", 
     "terminal-automation",
-    "real-time",
-    "ceo-dashboard"
+    "websocket",
+    "react-dashboard"
   ],
   "author": "Dave Nevis <tom@asciiiware.com> (https://github.com/davenevis)",
   "license": "MIT",
@@ -50,17 +48,6 @@
   },
   "devDependencies": {
     "jest": "^29.7.0",
-    "nodemon": "^3.0.1",
-    "webpack": "^5.89.0",
-    "webpack-cli": "^5.1.4",
-    "concurrently": "^8.2.2",
-    "@babel/core": "^7.23.2",
-    "@babel/preset-env": "^7.23.2",
-    "@babel/preset-react": "^7.22.15",
-    "babel-loader": "^9.1.3",
-    "css-loader": "^6.8.1",
-    "style-loader": "^3.3.3",
-    "html-webpack-plugin": "^5.5.3",
     "eslint": "^8.52.0",
     "prettier": "^3.0.3"
   },
