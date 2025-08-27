@@ -63,6 +63,9 @@
     "url": "https://github.com/davenevis/AiManager/issues"
   },
   "homepage": "https://github.com/davenevis/AiManager#readme",
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
     "bin/",
     "src/",
