@@ -1,0 +1,47 @@
+{
+  "project": {
+    "name": "test",
+    "description": "test - Multi-Claude development project",
+    "start_date": "2025-08-26",
+    "version": "1.0.0",
+    "phase": "Initial Development",
+    "manager": "ALEX",
+    "priority": "high",
+    "template": "default"
+  },
+  "goals": {
+    "current_sprint": {
+      "name": "Setup & Initial Development",
+      "deadline": "2025-09-09",
+      "objectives": [
+        "Complete project setup and configuration",
+        "Establish team coordination workflow",
+        "Begin core feature development",
+        "Set up testing and quality processes"
+      ]
+    },
+    "success_metrics": {
+      "team_velocity": "Consistent daily progress from all workers",
+      "code_quality": "All code reviewed and tested",
+      "coordination_efficiency": "Clear communication and minimal blockers",
+      "milestone_delivery": "On-time completion of sprint goals"
+    }
+  },
+  "milestones": [
+    {
+      "name": "Project Setup Complete",
+      "date": "2025-09-02",
+      "status": "in_progress"
+    },
+    {
+      "name": "Core Features MVP",
+      "date": "2025-09-23",
+      "status": "pending"
+    },
+    {
+      "name": "Testing & Quality Assurance",
+      "date": "2025-10-07",
+      "status": "pending"
+    }
+  ]
+}

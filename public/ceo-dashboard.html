@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AiManager CEO Control Panel</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🏢%3C/text%3E%3C/svg%3E">
+    
+    <!-- React and Babel for development -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --text-muted: #666666;
+            --accent-green: #00ff88;
+            --accent-blue: #0088ff;
+            --accent-orange: #ff8800;
+            --accent-red: #ff4444;
+            --accent-yellow: #ffdd00;
+            --accent-purple: #8844ff;
+            --border-color: #333333;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --radius: 8px;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .app {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border-bottom: 2px solid var(--accent-blue);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header .status {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+        
+        .status-dot.disconnected {
+            background: var(--accent-red);
+            animation: none;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .tab {
+            padding: 1rem 2rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            border-radius: var(--radius) var(--radius) 0 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .tab:hover {
+            background: var(--bg-tertiary);
+            transform: translateY(-2px);
+        }
+        
+        .tab.active {
+            background: var(--accent-blue);
+            color: var(--bg-primary);
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* PROJECT CREATION FORM STYLES */
+        .project-form {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .form-section {
+            margin-bottom: 2rem;
+        }
+        
+        .form-section h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px rgba(0, 136, 255, 0.2);
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        /* WORKER SELECTION STYLES */
+        .worker-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .worker-card {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .worker-card:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .worker-card.selected {
+            border-color: var(--accent-green);
+            background: rgba(0, 255, 136, 0.1);
+        }
+        
+        .worker-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .worker-avatar {
+            font-size: 1.5rem;
+        }
+        
+        .worker-info h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .worker-role {
+            font-size: 0.8rem;
+            color: var(--accent-blue);
+            font-weight: 500;
+        }
+        
+        .worker-specialties {
+            margin-top: 0.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+        }
+        
+        .specialty-tag {
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .selected-indicator {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            color: var(--accent-green);
+            font-size: 1.2rem;
+        }
+        
+        /* BUTTON STYLES */
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+            color: white;
+            box-shadow: var(--shadow);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        }
+        
+        .btn-success {
+            background: var(--accent-green);
+            color: var(--bg-primary);
+        }
+        
+        .btn-success:hover {
+            background: #00cc6a;
+        }
+        
+        .btn-large {
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        /* DASHBOARD GRID */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+        
+        .panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        
+        .panel-header {
+            background: var(--bg-tertiary);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .panel-content {
+            padding: 1.5rem;
+        }
+        
+        /* PROJECT STATUS STYLES */
+        .project-status {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+        
+        .project-status h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--accent-blue);
+        }
+        
+        .project-status p {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+        
+        .status-animation {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .main {
+                padding: 1rem;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .worker-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+        
+        .error {
+            color: var(--accent-red);
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid var(--accent-red);
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect, useCallback } = React;
+        
+        // Available workers database
+        const AVAILABLE_WORKERS = [
+            {
+                id: 'nova',
+                name: 'Nova',
+                role: 'Frontend Specialist',
+                avatar: '🎨',
+                specialties: ['react', 'ui/ux', 'styling', 'responsive-design'],
+                description: 'Expert in React, modern CSS, and beautiful user interfaces'
+            },
+            {
+                id: 'zephyr',
+                name: 'Zephyr',
+                role: 'Features Engineer',
+                avatar: '⚡',
+                specialties: ['backend', 'api', 'database', 'optimization'],
+                description: 'Builds robust backend systems and core functionality'
+            },
+            {
+                id: 'alex',
+                name: 'Alex',
+                role: 'Project Manager',
+                avatar: '🏢',
+                specialties: ['coordination', 'planning', 'documentation'],
+                description: 'Oversees projects and coordinates team activities'
+            },
+            {
+                id: 'sage',
+                name: 'Sage',
+                role: 'Full Stack Engineer',
+                avatar: '🚀',
+                specialties: ['fullstack', 'integration', 'deployment', 'testing'],
+                description: 'End-to-end development and system integration'
+            },
+            {
+                id: 'cipher',
+                name: 'Cipher',
+                role: 'Security Specialist',
+                avatar: '🔒',
+                specialties: ['security', 'authentication', 'encryption', 'compliance'],
+                description: 'Security implementation and vulnerability assessment'
+            },
+            {
+                id: 'pixel',
+                name: 'Pixel',
+                role: 'UI/UX Designer',
+                avatar: '🎭',
+                specialties: ['design', 'prototyping', 'user-experience', 'branding'],
+                description: 'Creates stunning designs and user experiences'
+            }
+        ];
+        
+        // Main CEO Dashboard App
+        function CEODashboard() {
+            const [activeTab, setActiveTab] = useState('create');
+            const [formData, setFormData] = useState({
+                projectName: '',
+                description: '',
+                projectType: 'fullstack',
+                complexity: 'medium',
+                requirements: '',
+                deadline: '',
+                budget: '',
+                technologies: []
+            });
+            const [selectedWorkers, setSelectedWorkers] = useState(['nova', 'zephyr']);
+            const [isLaunching, setIsLaunching] = useState(false);
+            const [projectStatus, setProjectStatus] = useState(null);
+            
+            const handleInputChange = (field, value) => {
+                setFormData(prev => ({
+                    ...prev,
+                    [field]: value
+                }));
+            };
+            
+            const toggleWorker = (workerId) => {
+                setSelectedWorkers(prev => 
+                    prev.includes(workerId) 
+                        ? prev.filter(id => id !== workerId)
+                        : [...prev, workerId]
+                );
+            };
+            
+            const launchProject = async () => {
+                setIsLaunching(true);
+                setProjectStatus('launching');
+                
+                try {
+                    // Prepare project data
+                    const projectData = {
+                        ...formData,
+                        workers: selectedWorkers.map(id => 
+                            AVAILABLE_WORKERS.find(w => w.id === id)
+                        ),
+                        launchedAt: new Date().toISOString()
+                    };
+                    
+                    console.log('🚀 Launching project:', projectData);
+                    
+                    // Call the backend API to start autonomous project
+                    const response = await fetch('/api/launch-project', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(projectData)
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        setProjectStatus('active');
+                        setActiveTab('monitor');
+                    } else {
+                        throw new Error('Failed to launch project');
+                    }
+                    
+                } catch (error) {
+                    console.error('Launch error:', error);
+                    setProjectStatus('error');
+                } finally {
+                    setIsLaunching(false);
+                }
+            };
+            
+            return (
+                <div className="app">
+                    <div className="header">
+                        <h1>🏢 AiManager CEO Control Panel</h1>
+                        <div className="status">
+                            <div className="status-indicator">
+                                <div className="status-dot"></div>
+                                <span>CEO Mode Active</span>
+                            </div>
+                            <div>AI Company Ready</div>
+                        </div>
+                    </div>
+                    
+                    <div className="main">
+                        <div className="tabs">
+                            <button 
+                                className={`tab ${activeTab === 'create' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('create')}
+                            >
+                                🚀 Create Project
+                            </button>
+                            <button 
+                                className={`tab ${activeTab === 'workers' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('workers')}
+                            >
+                                👥 Manage Workers
+                            </button>
+                            <button 
+                                className={`tab ${activeTab === 'monitor' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('monitor')}
+                            >
+                                📊 Monitor Projects
+                            </button>
+                            <button 
+                                className={`tab ${activeTab === 'settings' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('settings')}
+                            >
+                                ⚙️ Company Settings
+                            </button>
+                        </div>
+                        
+                        {/* PROJECT CREATION TAB */}
+                        <div className={`tab-content ${activeTab === 'create' ? 'active' : ''}`}>
+                            <div className="project-form">
+                                <h2 style={{textAlign: 'center', marginBottom: '2rem', color: 'var(--accent-blue)'}}>
+                                    🎯 Launch New AI Project
+                                </h2>
+                                
+                                <div className="form-section">
+                                    <h3>📋 Project Details</h3>
+                                    
+                                    <div className="form-group">
+                                        <label>Project Name *</label>
+                                        <input 
+                                            type="text"
+                                            placeholder="e.g., User Dashboard with Authentication"
+                                            value={formData.projectName}
+                                            onChange={(e) => handleInputChange('projectName', e.target.value)}
+                                        />
+                                    </div>
+                                    
+                                    <div className="form-group">
+                                        <label>Project Description *</label>
+                                        <textarea 
+                                            placeholder="Describe what you want built in detail..."
+                                            value={formData.description}
+                                            onChange={(e) => handleInputChange('description', e.target.value)}
+                                        />
+                                    </div>
+                                    
+                                    <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
+                                        <div className="form-group">
+                                            <label>Project Type</label>
+                                            <select 
+                                                value={formData.projectType}
+                                                onChange={(e) => handleInputChange('projectType', e.target.value)}
+                                            >
+                                                <option value="frontend">Frontend Only</option>
+                                                <option value="backend">Backend Only</option>
+                                                <option value="fullstack">Full-Stack Application</option>
+                                                <option value="mobile">Mobile App</option>
+                                                <option value="desktop">Desktop Application</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div className="form-group">
+                                            <label>Complexity Level</label>
+                                            <select 
+                                                value={formData.complexity}
+                                                onChange={(e) => handleInputChange('complexity', e.target.value)}
+                                            >
+                                                <option value="low">Simple (1-2 days)</option>
+                                                <option value="medium">Medium (3-5 days)</option>
+                                                <option value="high">Complex (1-2 weeks)</option>
+                                                <option value="enterprise">Enterprise (2+ weeks)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="form-group">
+                                        <label>Specific Requirements</label>
+                                        <textarea 
+                                            placeholder="Any specific features, technologies, or constraints..."
+                                            value={formData.requirements}
+                                            onChange={(e) => handleInputChange('requirements', e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                                
+                                <div className="form-section">
+                                    <h3>👥 Select AI Workers</h3>
+                                    <p style={{color: 'var(--text-secondary)', marginBottom: '1rem'}}>
+                                        Choose which AI specialists will work on this project
+                                    </p>
+                                    
+                                    <div className="worker-grid">
+                                        {AVAILABLE_WORKERS.map(worker => (
+                                            <div 
+                                                key={worker.id}
+                                                className={`worker-card ${selectedWorkers.includes(worker.id) ? 'selected' : ''}`}
+                                                onClick={() => toggleWorker(worker.id)}
+                                            >
+                                                {selectedWorkers.includes(worker.id) && (
+                                                    <div className="selected-indicator">✓</div>
+                                                )}
+                                                
+                                                <div className="worker-header">
+                                                    <div className="worker-avatar">{worker.avatar}</div>
+                                                    <div className="worker-info">
+                                                        <h4>{worker.name}</h4>
+                                                        <div className="worker-role">{worker.role}</div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <p style={{fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem'}}>
+                                                    {worker.description}
+                                                </p>
+                                                
+                                                <div className="worker-specialties">
+                                                    {worker.specialties.map(specialty => (
+                                                        <span key={specialty} className="specialty-tag">
+                                                            {specialty}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                
+                                <div className="form-actions">
+                                    <button 
+                                        className="btn btn-primary btn-large btn-block"
+                                        onClick={launchProject}
+                                        disabled={!formData.projectName || !formData.description || isLaunching}
+                                    >
+                                        {isLaunching ? '🚀 Launching AI Company...' : '🚀 Launch Autonomous AI Company'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {/* MONITOR TAB */}
+                        <div className={`tab-content ${activeTab === 'monitor' ? 'active' : ''}`}>
+                            <div className="dashboard-grid">
+                                <div className="panel">
+                                    <div className="panel-header">
+                                        <span>🎯 Active Projects</span>
+                                    </div>
+                                    <div className="panel-content">
+                                        {projectStatus ? (
+                                            <ProjectStatusDisplay status={projectStatus} />
+                                        ) : (
+                                            <div className="project-status">
+                                                <div className="status-animation">🏢</div>
+                                                <h2>No Active Projects</h2>
+                                                <p>Launch a project from the Create tab to see real-time progress here</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                
+                                <div className="panel">
+                                    <div className="panel-header">
+                                        <span>📊 Company Stats</span>
+                                    </div>
+                                    <div className="panel-content">
+                                        <div style={{textAlign: 'center'}}>
+                                            <h3>AI Workers Available: {AVAILABLE_WORKERS.length}</h3>
+                                            <p>Ready to execute your vision</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {/* OTHER TABS PLACEHOLDER */}
+                        <div className={`tab-content ${activeTab === 'workers' ? 'active' : ''}`}>
+                            <div className="project-status">
+                                <div className="status-animation">👥</div>
+                                <h2>Worker Management</h2>
+                                <p>Customize AI workers, create new specialists, and manage capabilities</p>
+                            </div>
+                        </div>
+                        
+                        <div className={`tab-content ${activeTab === 'settings' ? 'active' : ''}`}>
+                            <div className="project-status">
+                                <div className="status-animation">⚙️</div>
+                                <h2>Company Settings</h2>
+                                <p>Configure AI company behavior, templates, and preferences</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+        
+        // Project Status Display Component
+        function ProjectStatusDisplay({ status }) {
+            if (status === 'launching') {
+                return (
+                    <div className="project-status">
+                        <div className="status-animation">🚀</div>
+                        <h2>Launching AI Company...</h2>
+                        <p>Deploying workers and initializing project structure</p>
+                    </div>
+                );
+            }
+            
+            if (status === 'active') {
+                return (
+                    <div className="project-status">
+                        <div className="status-animation">⚡</div>
+                        <h2>AI Company Active!</h2>
+                        <p>Workers are collaborating on your project autonomously</p>
+                        <button className="btn btn-success" style={{marginTop: '1rem'}}>
+                            📊 View Live Progress
+                        </button>
+                    </div>
+                );
+            }
+            
+            if (status === 'error') {
+                return (
+                    <div className="project-status">
+                        <div className="status-animation">❌</div>
+                        <h2>Launch Failed</h2>
+                        <p>There was an error launching the AI company</p>
+                    </div>
+                );
+            }
+            
+            return null;
+        }
+        
+        // Render the app
+        ReactDOM.render(<CEODashboard />, document.getElementById('root'));
+    </script>
+</body>
+</html>

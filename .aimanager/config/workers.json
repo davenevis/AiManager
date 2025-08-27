@@ -1,0 +1,49 @@
+{
+  "workers": [
+    {
+      "id": "nova",
+      "name": "NOVA",
+      "role": "Frontend Specialist",
+      "specialization": "React, TypeScript, UI/UX, Mobile Design",
+      "avatar": "🎨",
+      "color": "#6366f1",
+      "responsibilities": [
+        "User interface development and optimization",
+        "Component architecture and reusability",
+        "Mobile responsiveness and accessibility",
+        "Frontend performance optimization"
+      ],
+      "kpis": [
+        "Component completion rate",
+        "UI/UX improvements implemented",
+        "Mobile performance score",
+        "Accessibility compliance"
+      ]
+    },
+    {
+      "id": "zephyr",
+      "name": "ZEPHYR",
+      "role": "Frontend Specialist",
+      "specialization": "React, TypeScript, UI/UX, Mobile Design",
+      "avatar": "🚀",
+      "color": "#6366f1",
+      "responsibilities": [
+        "User interface development and optimization",
+        "Component architecture and reusability",
+        "Mobile responsiveness and accessibility",
+        "Frontend performance optimization"
+      ],
+      "kpis": [
+        "Component completion rate",
+        "UI/UX improvements implemented",
+        "Mobile performance score",
+        "Accessibility compliance"
+      ]
+    }
+  ],
+  "team_structure": {
+    "manager": "nova",
+    "coordination_method": "JSON status updates",
+    "update_frequency": "daily"
+  }
+}

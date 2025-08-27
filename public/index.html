@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AiManager Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🚀%3C/text%3E%3C/svg%3E">
+    
+    <!-- React and Babel for development -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --text-muted: #666666;
+            --accent-green: #00ff88;
+            --accent-blue: #0088ff;
+            --accent-orange: #ff8800;
+            --accent-red: #ff4444;
+            --accent-yellow: #ffdd00;
+            --border-color: #333333;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --radius: 8px;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .app {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .header .status {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+        
+        .status-dot.disconnected {
+            background: var(--accent-red);
+            animation: none;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .main {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        
+        .panel-header {
+            background: var(--bg-tertiary);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .panel-content {
+            padding: 1.5rem;
+        }
+        
+        .workers-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .worker-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .worker-card:hover {
+            border-color: var(--accent-blue);
+        }
+        
+        .worker-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .worker-avatar {
+            font-size: 1.25rem;
+        }
+        
+        .worker-info h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .worker-role {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .worker-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.75rem 0;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+        
+        .status-badge.active { background: var(--accent-green); color: var(--bg-primary); }
+        .status-badge.ready { background: var(--accent-yellow); color: var(--bg-primary); }
+        .status-badge.blocked { background: var(--accent-red); color: var(--text-primary); }
+        .status-badge.offline { background: var(--text-muted); color: var(--text-primary); }
+        
+        .worker-focus {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-bottom: 0.75rem;
+        }
+        
+        .worker-stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .tasks-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .task-item {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        .task-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .task-title {
+            font-weight: 500;
+            flex: 1;
+        }
+        
+        .task-assignee {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+        
+        .error {
+            color: var(--accent-red);
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid var(--accent-red);
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .empty {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+        
+        .last-update {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 1rem;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .main {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+                gap: 1rem;
+            }
+            
+            .header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .panel {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .worker-card {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .task-item {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect, useCallback } = React;
+        
+        // WebSocket hook
+        function useWebSocket(url) {
+            const [socket, setSocket] = useState(null);
+            const [connected, setConnected] = useState(false);
+            const [data, setData] = useState(null);
+            const [error, setError] = useState(null);
+            
+            useEffect(() => {
+                const ws = new WebSocket(url);
+                
+                ws.onopen = () => {
+                    setConnected(true);
+                    setError(null);
+                    ws.send(JSON.stringify({ type: 'get_data' }));
+                };
+                
+                ws.onmessage = (event) => {
+                    try {
+                        const message = JSON.parse(event.data);
+                        if (message.type === 'initial_data') {
+                            setData(message.data);
+                        } else if (message.type === 'file_change') {
+                            // Update relevant data based on change type
+                            setData(prevData => {
+                                if (!prevData) return prevData;
+                                
+                                const newData = { ...prevData };
+                                
+                                if (message.updateType === 'worker_status' && message.data) {
+                                    // Update specific worker in workers array
+                                    if (newData.workers && newData.workers.workers) {
+                                        newData.workers.workers = newData.workers.workers.map(worker => 
+                                            worker.id === message.data.worker_id 
+                                                ? { ...worker, ...message.data }
+                                                : worker
+                                        );
+                                    }
+                                } else if (message.updateType === 'tasks' && message.data) {
+                                    newData.tasks = message.data;
+                                }
+                                
+                                return newData;
+                            });
+                        }
+                    } catch (e) {
+                        console.warn('Failed to parse WebSocket message:', e);
+                    }
+                };
+                
+                ws.onerror = (event) => {
+                    setError('WebSocket connection error');
+                };
+                
+                ws.onclose = () => {
+                    setConnected(false);
+                };
+                
+                setSocket(ws);
+                
+                return () => {
+                    ws.close();
+                };
+            }, [url]);
+            
+            return { socket, connected, data, error };
+        }
+        
+        // Worker Card Component
+        function WorkerCard({ worker }) {
+            const formatTime = (timestamp) => {
+                if (!timestamp) return 'Never';
+                return new Date(timestamp).toLocaleTimeString();
+            };
+            
+            const completedCount = worker.today?.completed?.length || 0;
+            const inProgressCount = worker.today?.in_progress?.length || 0;
+            const blockerCount = worker.blockers?.length || 0;
+            
+            return (
+                <div className="worker-card">
+                    <div className="worker-header">
+                        <div className="worker-avatar">{worker.avatar}</div>
+                        <div className="worker-info">
+                            <h3>{worker.name}</h3>
+                            <div className="worker-role">{worker.role}</div>
+                        </div>
+                    </div>
+                    
+                    <div className="worker-status">
+                        <div className={`status-badge ${worker.status || 'offline'}`}>
+                            {worker.status || 'offline'}
+                        </div>
+                        <div className="last-update">
+                            Updated {formatTime(worker.last_update)}
+                        </div>
+                    </div>
+                    
+                    {worker.current_focus && (
+                        <div className="worker-focus">
+                            🎯 {worker.current_focus}
+                        </div>
+                    )}
+                    
+                    <div className="worker-stats">
+                        <div className="stat">
+                            <span>✅</span>
+                            <span>{completedCount} done</span>
+                        </div>
+                        <div className="stat">
+                            <span>🔄</span>
+                            <span>{inProgressCount} active</span>
+                        </div>
+                        {blockerCount > 0 && (
+                            <div className="stat">
+                                <span>⚠️</span>
+                                <span>{blockerCount} blocked</span>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+        
+        // Task Item Component
+        function TaskItem({ task }) {
+            return (
+                <div className="task-item">
+                    <div className="task-header">
+                        <div className="task-title">{task.title || task.description || 'Untitled Task'}</div>
+                        {task.assigned_to && (
+                            <div className="task-assignee">@{task.assigned_to}</div>
+                        )}
+                    </div>
+                    {task.description && task.title && (
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
+                            {task.description}
+                        </div>
+                    )}
+                </div>
+            );
+        }
+        
+        // Main App Component
+        function App() {
+            const wsUrl = `ws://${window.location.hostname}:${window.location.port}`;
+            const { socket, connected, data, error } = useWebSocket(wsUrl);
+            
+            if (error) {
+                return (
+                    <div className="app">
+                        <div className="header">
+                            <h1>🚀 AiManager Dashboard</h1>
+                            <div className="status">
+                                <div className="status-indicator">
+                                    <div className="status-dot disconnected"></div>
+                                    <span>Disconnected</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="main">
+                            <div className="error">
+                                Failed to connect to WebSocket: {error}
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+            
+            if (!data) {
+                return (
+                    <div className="app">
+                        <div className="header">
+                            <h1>🚀 AiManager Dashboard</h1>
+                            <div className="status">
+                                <div className="status-indicator">
+                                    <div className="status-dot"></div>
+                                    <span>Connecting...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="main">
+                            <div className="loading">
+                                📡 Connecting to AiManager...
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+            
+            const workers = data.workers?.workers || [];
+            const tasks = data.tasks?.tasks || [];
+            const projectName = data.project?.name || 'AiManager Project';
+            
+            return (
+                <div className="app">
+                    <div className="header">
+                        <h1>🚀 {projectName}</h1>
+                        <div className="status">
+                            <div className="status-indicator">
+                                <div className={`status-dot ${connected ? '' : 'disconnected'}`}></div>
+                                <span>{connected ? 'Live' : 'Disconnected'}</span>
+                            </div>
+                            <div>{workers.length} workers</div>
+                            <div>{tasks.length} tasks</div>
+                        </div>
+                    </div>
+                    
+                    <div className="main">
+                        <div className="panel">
+                            <div className="panel-header">
+                                <span>👥 Workers</span>
+                            </div>
+                            <div className="panel-content">
+                                {workers.length === 0 ? (
+                                    <div className="empty">
+                                        No workers configured yet.
+                                        <br />
+                                        <small>Run <code>aimanager init</code> to set up workers.</small>
+                                    </div>
+                                ) : (
+                                    <div className="workers-grid">
+                                        {workers.map(worker => (
+                                            <WorkerCard key={worker.id} worker={worker} />
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        
+                        <div className="panel">
+                            <div className="panel-header">
+                                <span>📋 Tasks</span>
+                            </div>
+                            <div className="panel-content">
+                                {tasks.length === 0 ? (
+                                    <div className="empty">
+                                        No tasks assigned yet.
+                                        <br />
+                                        <small>Tasks will appear here when workers are assigned work.</small>
+                                    </div>
+                                ) : (
+                                    <div className="tasks-list">
+                                        {tasks.map((task, index) => (
+                                            <TaskItem key={task.id || index} task={task} />
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+        
+        // Render the app
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>

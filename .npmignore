@@ -1,0 +1,63 @@
+# Development files
+test-aimanager/
+ai-projects/
+ceo-headquarters/
+*.log
+.DS_Store
+Thumbs.db
+
+# Development and testing
+tests/
+coverage/
+.nyc_output/
+*.test.js
+*.spec.js
+
+# Build artifacts
+dist/
+build/
+.webpack/
+webpack.config.js
+
+# IDE files  
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.backup
+
+# Git files
+.git/
+.gitignore
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Dependencies (will be installed by user)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Documentation drafts
+docs/drafts/
+NOTES.md
