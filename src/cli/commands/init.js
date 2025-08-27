@@ -19,19 +19,23 @@ class InitCommand {
   }
 
   async execute(projectName, options = {}) {
-    const spinner = ora('Initializing AiManager project...').start();
-    
     try {
       // Check if already initialized
       const aimanagerPath = path.join(process.cwd(), '.aimanager');
       if (await fs.pathExists(aimanagerPath)) {
-        spinner.fail('AiManager project already initialized in this directory');
+        console.log(chalk.red('❌ AiManager project already initialized in this directory'));
         return;
       }
 
-      // Get project details
+      console.log(chalk.cyan('🚀 Setting up AiManager project...'));
+      console.log(chalk.gray('Answer a few questions to configure your AI company\n'));
+
+      // Get project details (with clean prompts)
       const projectConfig = await this.getProjectConfig(projectName, options);
       const workersConfig = await this.getWorkersConfig();
+      
+      // Now start spinner for file operations
+      const spinner = ora('Creating project structure...').start();
       
       // Create directory structure
       spinner.text = 'Creating directory structure...';
@@ -58,7 +62,12 @@ class InitCommand {
       this.showNextSteps(projectName, workersConfig.workers);
       
     } catch (error) {
-      spinner.fail(`Initialization failed: ${error.message}`);
+      // Only fail spinner if it exists
+      if (typeof spinner !== 'undefined' && spinner.isSpinning) {
+        spinner.fail(`Initialization failed: ${error.message}`);
+      } else {
+        console.log(chalk.red(`❌ Initialization failed: ${error.message}`));
+      }
       throw error;
     }
   }
